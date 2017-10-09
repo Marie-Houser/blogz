@@ -15,14 +15,21 @@ class Blog(db.Model):
     title = db.Column(db.String(255))
     body = db.Column(db.Text)
 
-    def __init__(self, title):
+    def __init__(self, title, body):
         self.title = title
+        self.body = body
 
 
 @app.route('/blog', methods=['GET'])    
 def index():
-    blog_posts = Blog.query.all()
+    id=request.args.get('id')
+    if id !=None:
+        blog_post = Blog.query.get(id)
+        return render_template('blog-display.html', blog_post=blog_post)
+    blog_posts = Blog.query.all() 
     return render_template('blog.html', blog_posts=blog_posts)
+
+ 
 
 @app.route('/newpost', methods=['POST'])
 def new_post():
@@ -35,15 +42,19 @@ def new_post():
         flash("Please enter text for this blog post", 'error') 
         return render_template('/newpost.html', blog_title=blog_title) 
     else:
-        new_post = Blog(blog_title)
+        new_post = Blog(blog_title, blog_text)
         new_post.body=blog_text
         db.session.add(new_post)
         db.session.commit()
-    return redirect('/blog')
+    id=new_post.id
+    a='/blog?id='+str(id)
+
+    return redirect(a)
 
 @app.route('/newpost', methods=['GET'])
 def get_newpost_template():
     return render_template('newpost.html')
+
 
 if __name__ == '__main__':
     app.run()
