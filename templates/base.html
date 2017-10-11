@@ -4,16 +4,17 @@
         <title>{{title}}</title>
         <style>
             .error{
-                color:red;
+                color:deeppink;
             }
             .blog_text{
                 height: 200px;
                 width: 400px;
                 text-align: top;
                 vertical-align:top;
+                color: deeppink;
             }
-            #textarea{
-                vertical-align: middle;
+            .heading{
+                text-align: center;
             }
         </style>
     </head>
@@ -21,16 +22,8 @@
 
     <div>
         <a href='/blog'>Read Blog Posts</a>
-        <a href='/newpost'>New Blog Post</a>
+        <a href='/newpost'>Add Post</a>
     </div>
-
-    {% with messages = get_flashed_messages(with_categories=True) %}
-        <ul>
-        {% for category,message in messages %}
-            <li class="{{category}}">{{message}}</li>
-        {% endfor %}
-        </ul>
-    {% endwith %}
 
     {% block content %}
     {% endblock %}

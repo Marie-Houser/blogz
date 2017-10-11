@@ -2,22 +2,33 @@
 
 {% block content %}
 
-    <h1>Create New Post</h1>
+    <h1 class="heading">Create New Post</h1>
     <form method='post'>
         <table>
         <tr>
-        <td>            
-        <label>New Post Title:
+            <td>            
+            <label>New Post Title:
+            </td>
+        <td>   
+        <input type="text" name='blog_title' value="{{blog_title}}"/></label>
         </td>
         <td>
-        <input type="text" name='blog_title' value="{{blog_title}}"/>
-        </label>
+        <tr>
+            <td></td>
+            <td class="error">
+        <p class="error">{{error_one}}</p>
         </td></tr>
         <tr><td>
         <label>Text:</label>
         </td>
-        <td>
-        <textarea type="text" class="blog_text" name='blog_text'>{{blog_text}}</textarea>
+         <td>               
+        <textarea type="text" class="blog_text" name='blog_text'>{{blog_text}}</textarea>           
+        </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+        <p class="error">{{error_two}}</p>
         </td></tr>
         <tr><td>
         <input type="submit" value='Add Blog Post' />

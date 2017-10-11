@@ -35,21 +35,24 @@ def index():
 def new_post():
     blog_title = request.form['blog_title']
     blog_text = request.form['blog_text']
-    if blog_title=="":
-        flash("Please title your blog post", 'error')
-        return render_template('/newpost.html', blog_text=blog_text)
+    if blog_text=="" and blog_title=="":
+        error_one="Please enter a title for your blog."
+        error_two="Please enter text for your blog."
+        return render_template('/newpost.html', blog_title=blog_title, blog_text=blog_text, error_one=error_one, error_two=error_two)
+    elif blog_title=="":
+        error_one="Please enter a title for your blog."
+        return render_template('/newpost.html', blog_title=blog_title, blog_text=blog_text, error_one=error_one)
     elif blog_text=="":
-        flash("Please enter text for this blog post", 'error') 
-        return render_template('/newpost.html', blog_title=blog_title) 
+        error_two="Please enter text for your blog."
+        return render_template('/newpost.html', blog_title=blog_title, blog_text=blog_text, error_two=error_two)
     else:
         new_post = Blog(blog_title, blog_text)
         new_post.body=blog_text
         db.session.add(new_post)
         db.session.commit()
-    id=new_post.id
-    a='/blog?id='+str(id)
-
-    return redirect(a)
+        id=new_post.id
+        a='/blog?id='+str(id)
+        return redirect(a)
 
 @app.route('/newpost', methods=['GET'])
 def get_newpost_template():
