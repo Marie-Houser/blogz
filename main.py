@@ -76,7 +76,7 @@ def new_post():
         a='/blog?id='+str(id)
         return redirect(a)
 
-@app.route('/newpost', methods=['GET'])
+@app.route('/newpost', methods=['GET', 'POST'])
 def get_newpost_template():
     return render_template('newpost.html')
 
@@ -87,7 +87,7 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
         if user and check_pw_hash(password, user.pw_hash):
-            session['user'] = username
+            session['username'] = username
             flash("Logged in")
             return redirect ('/newpost')
         else:
