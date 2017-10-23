@@ -30,22 +30,18 @@ class User(db.Model):
         self.username=username
         self.password=password
     
-@app.before_request
-def require_login():
-    allowed_routes = ['login', 'list_blogs', 'index', 'signup', 'display_user_posts']
-    if request.endpoint not in allowed_routes and 'user' not in session:
-        return redirect('/login')
-    
+
 
 @app.route('/blog', methods=['GET'])    
-def list_blogs():
+def index():
     id=request.args.get('id')
     if id !=None:
-        user = User.query.get(id)
         blog_post = Blog.query.get(id)
-        return render_template('blog-display.html', blog_post=blog_post, user=user)
+        return render_template('blog-display.html', blog_post=blog_post)
     blog_posts = Blog.query.all() 
     return render_template('blog.html', blog_posts=blog_posts)
+
+ 
 
 @app.route('/newpost', methods=['POST'])
 def new_post():
@@ -62,12 +58,8 @@ def new_post():
         error_two="Please enter text for your blog."
         return render_template('/newpost.html', blog_title=blog_title, blog_text=blog_text, error_two=error_two)
     else:
-        user = User.query.filter_by(username=session['user']).first()
-        user_id=user.id
-        owner_id=user_id
-        new_post = Blog(blog_title, blog_text, owner_id)
+        new_post = Blog(blog_title, blog_text)
         new_post.body=blog_text
-        new_post.owner_id=owner_id
         db.session.add(new_post)
         db.session.commit()
         id=new_post.id
@@ -85,8 +77,9 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
-            session['user'] = username
+            session['user'] = user
             flash("Logged in")
+            print(session)
             return redirect ('/newpost')
         else:
             if password != User.password:
@@ -128,37 +121,19 @@ def signup():
             new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
-            session['username'] = username
             return redirect('/newpost')
-            
+            session['username'] = username
         else:
             username_error="It looks like you may have already registered with us.  Try logging in." 
             return render_template('signup.html', username_error=username_error)
     else:
         return render_template('signup.html')
 
-@app.route('/logout')
-def logout():
-    del session['user']
-    return redirect('/blog')
+# @app.route('/logout')
+# def logout():
+#     del session['username']
+#     return redirect('/login')
 
-# "Home" page
-@app.route('/')
-def index():
-    users= User.query.all()
-    return render_template('index.html', users=users)
-
-@app.route('/user', methods=['GET'])    
-def display_user_posts():
-    username=request.args.get('user')
-    user=User.query.get(username)
-    if username !=None:
-        owner_id=username
-        blog_posts = Blog.query.filter_by(owner_id=owner_id).all()
-        print(blog_posts)
-        return render_template('blog-with-user.html', blog_posts=blog_posts, user=user)
-    blog_posts = Blog.query.all() 
-    return render_template('blog.html', blog_posts=blog_posts)
         
 if __name__ == '__main__':
     app.run()
