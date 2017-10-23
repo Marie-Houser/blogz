@@ -91,7 +91,7 @@ def login():
             flash("Logged in")
             return redirect ('/newpost')
         else:
-            if password != User.password:
+            if check_pw_hash(password, user.pw_hash) ==False:
                 flash('That password does not match what is in our database.  Would you mind trying a different one?', 'error')
             elif User.query.filter_by(username=username).first() ==[]:
                 flash("We don't seem to have you in our database.  Please signup for an account!", 'error')
