@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, render_template, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from hashutils import make_pw_hash, check_pw_hash
+
 
 
 app = Flask(__name__)
@@ -25,12 +25,12 @@ class Blog(db.Model):
 class User(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     username=db.Column(db.String(255))
-    pw_hash = db.Column(db.String(120))
+    password = db.Column(db.String(120))
     # blogs = db.relationship('Blog', backref = 'owner_id')
 
     def  __init__(self, username, password):
         self.username=username
-        self.pw_hash = make_pw_hash(password)
+        self.password=password
     
 @app.before_request
 def require_login():
@@ -64,7 +64,7 @@ def new_post():
         error_two="Please enter text for your blog."
         return render_template('/newpost.html', blog_title=blog_title, blog_text=blog_text, error_two=error_two)
     else:
-        user = User.query.filter_by(username=session['user']).first()
+        user = User.query.filter_by(username=session['username']).first()
         user_id=user.id
         owner_id=user_id
         new_post = Blog(blog_title, blog_text, owner_id)
@@ -86,15 +86,12 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and check_pw_hash(password, user.pw_hash):
+        if user and user.password==password:
             session['username'] = username
             flash("Logged in")
             return redirect ('/newpost')
         else:
-            if check_pw_hash(password, user.pw_hash) ==False:
-                flash('That password does not match what is in our database.  Would you mind trying a different one?', 'error')
-            elif User.query.filter_by(username=username).first() ==[]:
-                flash("We don't seem to have you in our database.  Please signup for an account!", 'error')
+            flash("We don't seem to have you in our database, or your login was incorrect.  Please signup for an account!", 'error')
             
     return render_template('login.html')
 
@@ -141,7 +138,7 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    del session['user']
+    del session['username']
     return redirect('/blog')
 
 # "Home" page
